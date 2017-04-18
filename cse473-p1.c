@@ -73,7 +73,8 @@ int main( int argc, char **argv )
 {
     int pid;
     int read_index = 0, write_index = 0, new_index = 0;
-    int err;
+    int err=0;
+	struct stat v;
 
     /* Check for arguments */
     if ( argc < 3 ) 
@@ -101,30 +102,33 @@ int main( int argc, char **argv )
         fprintf( stderr, "child: error in ipc setup\n" );
 	exit(-1);
       }
-
       /* dump the file contents */
       rcv_file( argv[2], new_index );
       fprintf( stderr, "child: finished\n" );
-    }
+    
+
+
+
+	}
     else {
       /* parent */
 
       /* setup the IPC channel */
       err = setup_ipc_parent( read_index, write_index, &new_index );
       if ( err ) {
+	printf("%d\n",err);
         fprintf( stderr, "parent: error in ipc setup\n" );
 	exit(-1);
       }
-	
       /* send the file contents */
       send_file( argv[1], new_index );
       fprintf( stderr, "parent: finished\n" );
-    }
+    	
 
     exit( 0 );
 }
 
-
+}
 /**********************************************************************
 
     Function    : create_ipc
@@ -138,10 +142,17 @@ int create_ipc( int *read, int *write )
 {
   int result;
   int fd[2];
+  
+  	result=pipe(fd);
+	if(result<0){
+	fprintf(stderr,"pipe\n");
+  	return result;
+	}
 
-  /* YOUR CODE HERE */
 
-  return result;
+	*read=fd[0];
+	*write=fd[1];
+	return 0;
 }
 
 
@@ -159,7 +170,13 @@ int create_ipc( int *read, int *write )
 int setup_ipc_child( int read, int write, int *new ) 
 {
   int err = 0; 
-
+	close(0);
+	close(write);
+	*new=dup(read);
+	if(new<0){
+	fprintf(stderr,"setup_ipc_child_dup\n");
+	exit(-1);}
+				
   /* YOUR CODE HERE */
 
   return err;
@@ -180,8 +197,14 @@ int setup_ipc_child( int read, int write, int *new )
 int setup_ipc_parent( int read, int write, int *new ) 
 {
   int err = 0;
-
-  /* YOUR CODE HERE */
+	close(1);
+	close(read);
+	*new=dup(write);
+	if(0>new){
+	fprintf(stderr,"setup_ipc_parent_dup\n");
+	exit(-1);
+	}
+ 
 
   return err;
 }
@@ -200,8 +223,34 @@ int setup_ipc_parent( int read, int write, int *new )
 int send_file( char *name, int index )
 {
 
-  /* YOUR CODE HERE */
-
+struct stat v;
+int fd=0;
+int err=0;
+	#if 0
+	if(write(index,name,strlen(name)+1)<0){
+	fprintf(stderr,"send_file_write\n");
+	exit(-1);}
+	#endif
+	if(stat(name,&v)<0){
+	perror("stat:");
+	exit(-1);
+	}
+	fd=open(name,O_RDONLY);
+	if(fd<0){
+	fprintf(stderr,"open:err in toopen the the file\n");
+	}
+	int vv=v.st_size;
+	char s[vv+1];
+	err=read(fd,s,sizeof(s));	
+	if(err<0){
+	fprintf(stderr,"read:err in the to read the file\n");
+	exit(-1);
+	}
+	
+	err=write(index,s,strlen(s)+1);
+	if(err<0){
+	fprintf(stderr,"write:err in to write in to the pipe\n");
+	exit(-1);}
   return 0;
 }
 
@@ -219,8 +268,12 @@ int send_file( char *name, int index )
 
 int rcv_file( char *name, int index )
 {
+fprintf(stderr,"%d\n",index);
+	if(read(index,name,sizeof())<0){
+	fprintf(stderr,"rcv_file_read\n");
+	exit(-1);}
 
-  /* YOUR CODE HERE */
+	read(index,)
 
   return 0;
 }
