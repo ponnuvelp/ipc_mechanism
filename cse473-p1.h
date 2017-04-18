@@ -9,6 +9,12 @@ static inline int readline( FILE *fp, char *buf, int max, int *eof )
   int len = 0;
   char c;
 
+
+
+
+
+
+
   /* get next entry */
   while ( len < max ) {
     c = fgetc( fp );
