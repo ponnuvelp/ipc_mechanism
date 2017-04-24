@@ -83,8 +83,10 @@ int mypipe_init( void )
 {
   int shmid;
 
-  /* YOUR CODE HERE */
-
+	shmid=shmget(SHM_KEY,50,IPC_CREAT|0644);
+	if(shmid<0){
+	perror("shmget");
+	return 0;}
   return shmid;
 }
 
