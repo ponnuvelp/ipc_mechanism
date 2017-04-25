@@ -83,7 +83,7 @@ int mypipe_init( void )
 {
   int shmid;
 
-	shmid=shmget(SHM_KEY,50,IPC_CREAT|0644);
+	shmid=shmget(SHM_KEY,SHM_SZ,IPC_CREAT|0644);
 	if(shmid<0){
 	perror("shmget");
 	return 0;}
@@ -104,7 +104,7 @@ int mypipe_init( void )
 int mypipe_attach( int index, int *new )
 {
 
-  /* YOUR CODE HERE */
+  shmat()
 
  return 0;
 }

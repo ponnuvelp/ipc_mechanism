@@ -1,0 +1,9 @@
+ #include<stdio.h>
+{
+   char  *p =(char  *)0x55550005;
+   char  *q =(char  *)0x53332225;
+   *p = 80;
+   (*p)++;
+   printf("%d",*q);
+   return 0;
+}

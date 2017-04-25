@@ -55,79 +55,79 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MSG_SIZE 30
 #define SEND 1
 
-    /* 
-       send contents of a file to another process via IPC 
-       or should it be multiple passes...
-    */
+/* 
+   send contents of a file to another process via IPC 
+   or should it be multiple passes...
+ */
 
 /**********************************************************************
 
-    Function    : main
-    Description : this is the main function for project #1 pipe IPC
-    Inputs      : argc - number of command line parameters
-                  argv - the text of the arguments
-    Outputs     : 0 if successful, -1 if failure
+Function    : main
+Description : this is the main function for project #1 pipe IPC
+Inputs      : argc - number of command line parameters
+argv - the text of the arguments
+Outputs     : 0 if successful, -1 if failure
 
-***********************************************************************/
+ ***********************************************************************/
 
 /* Functions */
 int main( int argc, char **argv ) 
 {
-    int pid;
-    int read_index = 0, write_index = 0, new_index = 0;
-    int err;
+	int pid;
+	int read_index = 0, write_index = 0, new_index = 0;
+	int err;
 
-    /* Check for arguments */
-    if ( argc < 3 ) 
-    {
-        /* Complain, explain, and exit */
-        fprintf( stderr, "missing or bad command line arguments\n" );
-        fprintf( stderr, CLIENT_USAGE );
-        exit( -1 );
-    }
+	/* Check for arguments */
+	if ( argc < 3 ) 
+	{
+		/* Complain, explain, and exit */
+		fprintf( stderr, "missing or bad command line arguments\n" );
+		fprintf( stderr, CLIENT_USAGE );
+		exit( -1 );
+	}
 
-    /* get the index for the IPC object */
-    err = create_ipc( &read_index, &write_index );
-    if ( err ) {
-      fprintf( stderr, "create ipc error\n" );
-      exit(-1);
-    }
+	/* get the index for the IPC object */
+	err = create_ipc( &read_index, &write_index );
+	if ( err ) {
+		fprintf( stderr, "create ipc error\n" );
+		exit(-1);
+	}
 
-    /* create receiver process */
+	/* create receiver process */
 #if SEND
-    if (( pid = fork() != 0 )) {
-      /* child */
+	if (( pid = fork() != 0 )) {
+		/* child */
 
-      /* setup the IPC channel */
-      setup_ipc_child( read_index, write_index,  &new_index );
-      if ( err ) {
-        fprintf( stderr, "child: error in ipc setup\n" );
-	exit(-1);
-      }
+		/* setup the IPC channel */
+		setup_ipc_child( read_index, write_index,  &new_index );
+		if ( err ) {
+			fprintf( stderr, "child: error in ipc setup\n" );
+			exit(-1);
+		}
 
-      /* dump the file contents */
-      rcv_file( argv[2], new_index );
-      fprintf( stderr, "child: finished\n" );
-    }
-    else {
+		/* dump the file contents */
+		rcv_file( argv[2], new_index );
+		fprintf( stderr, "child: finished\n" );
+	}
+	else {
 #endif
-      /* parent */
+		/* parent */
 
-      /* setup the IPC channel */
-      err = setup_ipc_parent( read_index, write_index, &new_index );
-      if ( err ) {
-        fprintf( stderr, "parent: error in ipc setup\n" );
-	exit(-1);
-      }
-	
-      /* send the file contents */
-      send_file( argv[1], new_index );
-      fprintf( stderr, "parent: finished\n" );
+		/* setup the IPC channel */
+		err = setup_ipc_parent( read_index, write_index, &new_index );
+		if ( err ) {
+			fprintf( stderr, "parent: error in ipc setup\n" );
+			exit(-1);
+		}
+
+		/* send the file contents */
+		send_file( argv[1], new_index );
+		fprintf( stderr, "parent: finished\n" );
 #if SEND
-    }
+	}
 #endif
 
-    exit( 0 );
+	exit( 0 );
 }
 
 
